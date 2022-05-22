@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "475801525125",
+    "firebase_url": "https://wecon-jetpackcompose-default-rtdb.firebaseio.com",
+    "project_id": "wecon-jetpackcompose",
+    "storage_bucket": "wecon-jetpackcompose.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:475801525125:android:16052a2dc553a7b05f02ec",
+        "android_client_info": {
+          "package_name": "com.example.wecon_jetpackcompose"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "475801525125-e6ff9an4lfodnukmklb30kii3lk8c4dq.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAJxwVbqVo8E5LrmZaFxraWvu2io8YPY0A"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "475801525125-e6ff9an4lfodnukmklb30kii3lk8c4dq.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

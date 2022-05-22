@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "822703571963",
+    "project_id": "weconlit",
+    "storage_bucket": "weconlit.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:822703571963:android:478be3c548db347873415e",
+        "android_client_info": {
+          "package_name": "com.example.weconlit"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "822703571963-aiqvv0brvok8ji4932eq0426knbtn8f4.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.weconlit",
+            "certificate_hash": "1d257c9b99b25ac99ccb82b17a23e3336942b55b"
+          }
+        },
+        {
+          "client_id": "822703571963-s2n5nj5cu1501or327slri1er3o5r780.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD7v_m2R8fXu8Ph5zvPy-6iGRiu6lk64zI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "822703571963-s2n5nj5cu1501or327slri1er3o5r780.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

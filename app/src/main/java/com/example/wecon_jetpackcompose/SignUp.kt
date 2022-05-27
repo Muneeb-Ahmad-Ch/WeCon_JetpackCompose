@@ -230,7 +230,7 @@ class SignUp : ComponentActivity() {
 
         // creating of node for current user in the firebase database
         // this will add user to the database
-        firebaseDBReference.child("user").child(userid).setValue(User(name ,email,userid , null , null))
+        firebaseDBReference.child("user").child(userid).setValue(User(name ,email,userid , null ))
 
         Log.i("Custom Note", "** The User Has been added to DB **" )
 

@@ -65,14 +65,14 @@ class LogIn : ComponentActivity() {
                         // User is signed in
                         Log.i("-> CUSTOM INFO"  , "** USER IS ALREADY LOGGED IN : ${user.uid} **")
 
-                    // redirect to main screen
-                        Toast.makeText(this@LogIn , "Welcome Back :)" ,Toast.LENGTH_SHORT ).show()
+
 
                         // setting profile image
                         val intent1 = Intent(this@LogIn, MainActivity::class.java)
                         //  finishAffinity()  // to clear previous stack of the activities
                         startActivity(intent1)
-
+                        // redirect to main screen
+//                        Toast.makeText(this@LogIn , "Welcome Back :)" ,Toast.LENGTH_SHORT ).show()
 
                     } else {
                         // No user is signed in

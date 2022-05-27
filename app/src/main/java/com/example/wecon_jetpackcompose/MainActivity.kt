@@ -25,12 +25,18 @@ import coil.annotation.ExperimentalCoilApi
 import coil.compose.rememberImagePainter
 import com.google.firebase.auth.FirebaseAuth
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.runtime.*
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.capitalize
@@ -48,18 +54,38 @@ val BUTTER_YELLOW= Color(0xFFFEE227)
 val LEMON_YELLOW= Color(0xFFEFFD5F)
 
 
+// >> things to implement
+
+
+
+
+// > implement chat logic and complete system
+// review whole app again for any addition
+
 class MainActivity : ComponentActivity() {
 
     // firebase auth variable
     private lateinit var auth: FirebaseAuth
     private lateinit var firebaseDBReference : DatabaseReference
-//    lateinit var userList: ArrayList<User>
 
+    val userList =   mutableStateListOf<User>()
+
+
+    val allUserEmails =   mutableStateListOf<String>()
+
+//    val userList = remember { mutableStateListOf<User>()}
+
+
+//    var currentUser: User = User()
+
+    var currentUser  = mutableStateOf<User>(User(":)", null, null , null  , mutableListOf<String>()))
 
     override fun onCreate(savedInstanceState: Bundle?) {
-        var currentUser: User
+
 
         super.onCreate(savedInstanceState)
+
+
         auth = FirebaseAuth.getInstance()
 
         Log.i("** Custom Log Message **", "OnCreate of MainActivity Is called")
@@ -69,17 +95,17 @@ class MainActivity : ComponentActivity() {
 
         firebaseDBReference = FirebaseDatabase.getInstance().getReference("user")
 
-        // Read from the database
+        // Read current user from the database
         firebaseDBReference.child(uid!!).addValueEventListener(object : ValueEventListener {
 
             override fun onDataChange(snapshot: DataSnapshot) {
                 // This method is called once with the initial value and again
                 // whenever data at this location is updated.
 
-                currentUser = snapshot.getValue(User::class.java)!!
+                currentUser.value  = snapshot.getValue(User::class.java)!!
                 Log.i(
                     "** Custom Log Message **",
-                    "Value is: " + currentUser.email + currentUser.uid + currentUser.name
+                    "Value is: " + currentUser.value.email + currentUser.value.uid + currentUser.value.name + currentUser.value.contacts
                 )
             }
 
@@ -89,12 +115,48 @@ class MainActivity : ComponentActivity() {
 
         })
 
+        // read list of users in the database
+        firebaseDBReference = FirebaseDatabase.getInstance().getReference("user")
+        firebaseDBReference.addValueEventListener(object: ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                // snapshot use to get database from db
+
+                // clearing any previous list
 
 
+                userList.clear()
+                allUserEmails.clear()
+                for (snap in snapshot.children) {
+                    val user = snap.getValue(User::class.java)
+                    // add we dont want to message our self xD
+
+
+                    // making list of user's email that are using app (who has wecon accounts)
+                    if (currentUser.value.email != user?.email)
+                        allUserEmails.add(user?.email!!)
+
+                    // contacts that are in the current user's contact list
+                    if (auth.currentUser?.uid != user?.uid  &&  currentUser.value.contacts.contains(user?.email) ) {
+                        Log.i("** Custom Note **", "** This is A LOOP _> $user **")
+
+                        userList.add(user!!)
+                    }
+                }
+
+
+                  Log.i("** Custom Note **", "** Data Set Update $userList **" )
+
+            }
+
+            override fun onCancelled(error: DatabaseError) {
+
+            }
+        })
         setContent {
             WeCon_JetpackComposeTheme {
 
-              MainAppUI()
+                MainAppUI()
+                Toast.makeText(this@MainActivity , "Welcome Back :)" ,Toast.LENGTH_SHORT ).show()
 
             }
         }
@@ -107,8 +169,8 @@ class MainActivity : ComponentActivity() {
     fun MainAppUI ()
     {
         val isDialogOpen =  remember { mutableStateOf(false) }
-
-
+        val users = remember { userList}
+        val currentUser0 = remember {currentUser}
         Scaffold(
             backgroundColor = GREY,
             topBar = {
@@ -117,7 +179,7 @@ class MainActivity : ComponentActivity() {
                     backgroundColor = YELLOW,
 
                     title = {
-                        Text(text = "Restaurant Record Book", color = GREY , fontSize = 20.sp,
+                        Text(text = "WeCon ~ ${currentUser0.value.name?.capitalize()}", color = GREY , fontSize = 20.sp,
                             fontWeight = FontWeight.Bold)
                     },
                     actions = {
@@ -148,9 +210,8 @@ class MainActivity : ComponentActivity() {
                 )
             },
             content = {
-//                        AllCards(Items )
+                        AllCards(users )
                         ShowAlertDialog(isDialogOpen)
-                ContactRow()
             },
             floatingActionButton = {
                 FloatingActionButton(onClick = {}, backgroundColor = YELLOW) {
@@ -159,7 +220,6 @@ class MainActivity : ComponentActivity() {
                             "ButtonClicked",
                             "Add Button Clicked :)"
                         )
-
                         isDialogOpen.value = true
 
                     }
@@ -167,7 +227,8 @@ class MainActivity : ComponentActivity() {
                         Icon(
                             Icons.Filled.Add,
                             tint = GREY,
-                            contentDescription = "add"
+                            contentDescription = "add",
+                            modifier = Modifier.size(30.dp)
                         )
                     }
                 }
@@ -175,27 +236,44 @@ class MainActivity : ComponentActivity() {
         )
     }
 
+    @Composable
+    fun AllCards (users: SnapshotStateList<User>)
+    {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxWidth(),
+            horizontalAlignment = Alignment.CenterHorizontally,
+//            contentPadding = PaddingValues(horizontal = 10.dp, vertical = 100.dp),
+//            verticalArrangement = Arrangement.spacedBy(.dp)
+        ){
+            //  Add a Multiple Items
+//            items(Items.size) { i -> CustomCard(Items[i] , i ) }
+            itemsIndexed(users) { index, user -> ContactRow(index , user )}
+
+        }
+
+    }
+
 
     //    @OptIn(ExperimentalCoilApi::class)
     @Composable
-    fun ContactRow() {
-    var name: String? = "muneeb" // currentUser.name
-    var uid: String? = "UKSR9DwAZ2YOimoPpC4utDpcU002"    //  currentUser.uid
+    fun ContactRow(userNum : Int , user: User) {
+//    var name: String? = "muneeb" // currentUser.name
+//    var uid: String? = "UKSR9DwAZ2YOimoPpC4utDpcU002"    //  currentUser.uid
 
 
     Card(
         shape = RoundedCornerShape(14.dp),
         elevation = 2.dp,
-
-        modifier = Modifier.padding(horizontal = 15.dp, vertical = 5.dp),
-
+        modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
         backgroundColor = GREY,
 //        border = BorderStroke(5.dp, Color.Red),
 
         contentColor = Color.Black,
 
         ) {
-        Column(Modifier.background(color = LIGHT_GREY)) {
+
+        Column(Modifier.background(color = LIGHT_GREY) ) {
 
             Row(
                 modifier = Modifier
@@ -207,24 +285,40 @@ class MainActivity : ComponentActivity() {
             {
                 Image(
                     painter = rememberImagePainter(
-                        data = "https://firebasestorage.googleapis.com/v0/b/wecon-jetpackcompose.appspot.com/o/images%2F${uid}?alt=media&token=c92e2cbd-3ce9-4e82-a512-bbbaaece4058"
+                        data = "https://firebasestorage.googleapis.com/v0/b/wecon-jetpackcompose.appspot.com/o/images%2F${user.uid}?alt=media&token=c92e2cbd-3ce9-4e82-a512-bbbaaece4058"
                     ),
                     contentDescription = "App Logo",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .size(50.dp)
+                        .clip(CircleShape)
+
                 )
 
                 Spacer(Modifier.width(20.dp))
                 Text(
-                    text = name!!.capitalize(),
+                    text = user.name!!.capitalize(),
                     fontSize = 20.sp,
                     textAlign = TextAlign.Center,
                     color = YELLOW,
                     modifier = Modifier.padding(top = 10.dp, end = 10.dp)
 
                 )
-
+                Spacer(Modifier.width(60.dp))
+                IconButton(onClick = {
+                    Log.d(
+                        "ButtonClicked",
+                        "Delete Button Clicked"
+                    )
+//                    Items.removeAt(cardNum)
+                    Toast.makeText(
+                        this@MainActivity,
+                        "Item Removed!",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }) {
+                    Icon(Icons.Filled.Delete, tint = Color.Red, contentDescription = "Delete")
+                }
             }
         }
 
@@ -285,28 +379,56 @@ class MainActivity : ComponentActivity() {
                         Spacer(modifier = Modifier.padding(25.dp))
                         Button(
                             onClick = {
-                                if (!email.isNullOrEmpty()) {
+
+                                if (email.isNullOrEmpty())
+                                {
+                                    Toast.makeText(
+                                        context,
+                                        "Please Complete the Field!",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                                else if (!allUserEmails.contains(email))
+                                {
+                                    Toast.makeText(
+                                        context,
+                                        "Current Email Is Not A User of WeCon",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
+                                else{
                                     isDialogOpen.value = false
 
                                     // add in output here
+                                    var updatedContacts = mutableListOf<String>()
+                                    Log.i("** CUSTOM LOG **" , "Old Contact List: 0 -> ${currentUser.value.contacts}")
 
+                                    updatedContacts= updatedContacts.plus(currentUser.value.contacts) as MutableList<String>
+                                    Log.i("** CUSTOM LOG **" , "New Contact List: 1 -> $updatedContacts")
 
+                                    updatedContacts.add(email)
+                                    Log.i("** CUSTOM LOG **" , "New Contact List: 2 -> $updatedContacts")
 
+//                                    var newContacts: ArrayList<String>? =  currentUser.contacts?  +  ArrayList<String>?(email)
+                                    Log.i("** CUSTOM LOG **" , "New Contact List: $updatedContacts")
+
+                                    firebaseDBReference = FirebaseDatabase.getInstance().getReference()
+
+                                    // creating of node for current user in the firebase database
+                                    // this will add user to the database
+//                                    firebaseDBReference.child("user").child(currentUser.uid!!).setValue(User(currentUser.name ,currentUser.email,currentUser.uid , currentUser.profile_pic  , updatedContacts))
+                                    firebaseDBReference.child("user").child(currentUser.value.uid!!).child("contacts").setValue(updatedContacts)
+
+                                    currentUser.value.contacts.add(email)
                                     //
+
                                     Toast.makeText(
                                         context,
                                         "Contact Added!",
                                         Toast.LENGTH_SHORT
                                     ).show()
                                 }
-                                else
-                                {
-                                    Toast.makeText(
-                                        context,
-                                        "Please Complete the Fields",
-                                        Toast.LENGTH_SHORT
-                                    ).show()
-                                }
+
                                 Log.d(
                                     "ButtonClicked",
                                     "Add Contact Button Clicked :)" +
@@ -321,14 +443,15 @@ class MainActivity : ComponentActivity() {
                             modifier = Modifier
                                 .fillMaxWidth(0.5f)
                                 .height(60.dp)
-                                .padding(10.dp),
+                                .padding(5.dp),
                             shape = RoundedCornerShape(5.dp),
                             colors = ButtonDefaults.buttonColors(backgroundColor = YELLOW)
                         ) {
                             Text(
                                 text = "Add",
                                 color = GREY,
-                                fontSize = 12.sp
+                                fontSize = 16.sp,
+                                fontWeight = FontWeight.Bold
                             )
                         }
                     }
@@ -346,33 +469,10 @@ class MainActivity : ComponentActivity() {
 
 
 
-//    fun getUsersListFromFirebase ()
-//    {
-//        firebaseDBReference.child("user").addValueEventListener(object: ValueEventListener {
-//            override fun onDataChange(snapshot: DataSnapshot) {
-//                // snapshot use to get database from db
-//
-//                // clearing any previous list
-//                userList.clear()
-//                for (snap in snapshot.children) {
-//                    val user = snap.getValue(User::class.java)
-//                    // add we dont want to message our self xD
-//                    if (auth.currentUser?.uid != user?.uid)
-//                        userList.add(user!!)
-//
-//                }
-//
-//
-////                    Log.i("Custom Note", "** Data Set Update **" )
-//
-//            }
-//
-//            override fun onCancelled(error: DatabaseError) {
-//
-//            }
-//        })
-//
-//    }
+    fun getUsersListFromFirebase ()
+    {
+
+    }
 
 
 

@@ -3,4 +3,5 @@
     <string name="title_activity_sign_up">SignUp</string>
     <string name="title_activity_log_in">LogIn</string>
     <string name="title_activity_add_profile_image">AddProfileImage</string>
+    <string name="title_activity_chat">Chat</string>
 </resources>

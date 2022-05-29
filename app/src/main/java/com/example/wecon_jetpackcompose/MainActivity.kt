@@ -43,6 +43,7 @@ import androidx.compose.ui.text.capitalize
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.window.Dialog
 import com.google.firebase.database.*
+import org.intellij.lang.annotations.JdkConstants
 
 // https://www.geeksforgeeks.org/start-a-new-activity-using-intent-in-android-using-jetpack-compose/
 
@@ -55,12 +56,11 @@ val LEMON_YELLOW= Color(0xFFEFFD5F)
 
 
 // >> things to implement
-
-
-
-
 // > implement chat logic and complete system
 // review whole app again for any addition
+// internet check
+// loading waiting animation
+
 
 class MainActivity : ComponentActivity() {
 
@@ -257,7 +257,8 @@ class MainActivity : ComponentActivity() {
 
     //    @OptIn(ExperimentalCoilApi::class)
     @Composable
-    fun ContactRow(userNum : Int , user: User) {
+    fun ContactRow(userNum : Int , user: User)
+    {
 //    var name: String? = "muneeb" // currentUser.name
 //    var uid: String? = "UKSR9DwAZ2YOimoPpC4utDpcU002"    //  currentUser.uid
 
@@ -265,7 +266,14 @@ class MainActivity : ComponentActivity() {
     Card(
         shape = RoundedCornerShape(14.dp),
         elevation = 2.dp,
-        modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp),
+        modifier = Modifier.padding(horizontal = 10.dp, vertical = 5.dp)
+            .clickable{
+                val intent = Intent ( this@MainActivity , Chat::class.java)
+                // have to pass chat person name / id
+                intent.putExtra("uid" , user.uid) // id of receiver
+                startActivity(intent)
+            },
+
         backgroundColor = GREY,
 //        border = BorderStroke(5.dp, Color.Red),
 
@@ -305,20 +313,21 @@ class MainActivity : ComponentActivity() {
 
                 )
                 Spacer(Modifier.width(60.dp))
-                IconButton(onClick = {
-                    Log.d(
-                        "ButtonClicked",
-                        "Delete Button Clicked"
-                    )
-//                    Items.removeAt(cardNum)
-                    Toast.makeText(
-                        this@MainActivity,
-                        "Item Removed!",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                }) {
-                    Icon(Icons.Filled.Delete, tint = Color.Red, contentDescription = "Delete")
-                }
+//                IconButton(  onClick = {
+//                    Log.d(
+//                        "ButtonClicked",
+//                        "Delete Button Clicked"
+//                    )
+////                    Items.removeAt(cardNum)
+//                    Toast.makeText(
+//                        this@MainActivity,
+//                        "Item Removed!",
+//                        Toast.LENGTH_SHORT
+//                    ).show()
+//                }
+//                ) {
+//                    Icon(Icons.Filled.Delete, tint = Color.Red, contentDescription = "Delete")
+//                }
             }
         }
 

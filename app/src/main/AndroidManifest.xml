@@ -18,10 +18,15 @@
         android:theme="@style/Theme.WeCon_JetpackCompose"
         tools:targetApi="31">
         <activity
+            android:name=".Chat"
+            android:exported="false"
+            android:label="@string/title_activity_chat"
+            android:theme="@style/Theme.WeCon_JetpackCompose" />
+        <activity
             android:name=".AddProfileImage"
             android:exported="false"
             android:label="@string/title_activity_add_profile_image"
-            android:theme="@style/Theme.WeCon_JetpackCompose"  />
+            android:theme="@style/Theme.WeCon_JetpackCompose" />
         <activity
             android:name=".MainActivity"
             android:exported="false"
@@ -36,7 +41,7 @@
             android:name=".LogIn"
             android:exported="true"
             android:label=""
-            android:theme="@string/title_activity_log_in"  >
+            android:theme="@string/title_activity_log_in">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
